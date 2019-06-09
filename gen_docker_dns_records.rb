@@ -23,7 +23,7 @@ def find_pihole_container(contname)
 end
 
 def find_traefik_listen_ip(contname)
-  return Docker::Container.get(contname).json["NetworkSettings"]["Ports"]["443/tcp"][0]["HostIp"]
+  return Docker::Container.get(contname).json["NetworkSettings"]["Ports"]["80/tcp"][0]["HostIp"]
 end
 
 def get_containers_with_rule_label()
