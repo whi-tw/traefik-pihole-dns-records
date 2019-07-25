@@ -84,16 +84,14 @@ def remove_rule(existing_rules, hostname)
 end
 
 pihole = find_pihole_container($pihole_container_name)
-if !$traefik_ip
+unless $traefik_ip
   traefik_ip = find_traefik_listen_ip($traefik_container_name)
 end
-
 rules_to_set = []
 get_containers_with_rule_label().each do | container |
   hostname = extract_hostname_from_container(container)
-  rules_to_set.push(generate_host_record_line(hostname, traefik_ip))
+  rules_to_set.push(generate_host_record_line(hostname, $traefik_ip))
 end
-
 rulefiletext = rules_to_set.join("\n")
 
 pihole.store_file("/etc/dnsmasq.d/#{$rule_file_name}", rulefiletext)
@@ -106,7 +104,7 @@ Docker::Event.stream do |event|
     if event_hostname then
       if event.action == "start" then
         existing_rules = get_existing_records(pihole)
-        newrules = add_or_update_rule(existing_rules, event_hostname, traefik_ip)
+        newrules = add_or_update_rule(existing_rules, event_hostname, $traefik_ip)
         if newrules then
           rules_as_text = []
           newrules.each do | hostname, ip |
