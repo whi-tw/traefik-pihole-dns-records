@@ -3,8 +3,9 @@ require("docker")
 
 
 $traefik_container_name = ENV["TRAEFIK_CONTAINER_NAME"]
-unless $traefik_container_name
-  puts "TRAEFIK_CONTAINER_NAME must be set"
+$traefik_ip = ENV["TRAEFIK_IP"]
+unless $traefik_container_name || $traefik_ip
+  puts "TRAEFIK_CONTAINER_NAME or TRAEFIK_IP must be set"
   exit 1
 end
 $pihole_container_name = ENV["PIHOLE_CONTAINER_NAME"]
@@ -83,7 +84,9 @@ def remove_rule(existing_rules, hostname)
 end
 
 pihole = find_pihole_container($pihole_container_name)
-traefik_ip = find_traefik_listen_ip($traefik_container_name)
+if !$traefik_ip
+  traefik_ip = find_traefik_listen_ip($traefik_container_name)
+end
 
 rules_to_set = []
 get_containers_with_rule_label().each do | container |
